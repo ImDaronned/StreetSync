@@ -1,0 +1,6 @@
+Before starting the API make sure to install XAMPP
+First, in xampp start the mysql local server
+Then in phpmyadmin configuration (localhost/phpmyadmin) 
+Make sure to have a data base named : "StreetSync" and a table named : "users"
+If you want to start the API, make sure to be in the Api StreetSync folder
+Open a terminal or with your IDE execute this command : "npm run start" 
