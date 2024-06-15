@@ -693,8 +693,7 @@ async function createdService(pool, req, res) {
                     if (err) {
                         reject(err.message);
                     } else {
-                        const queryResult = true;
-                        resolve(queryResult);
+                        resolve(true);
                     }
                 });
         });
@@ -750,7 +749,6 @@ async function getServices(pool, req, res, owner){
                 .input("name", req.query.name)
                 .query(query, (err, result) => {
                     if (err) {
-                        console.error(`Function: getServices, error: ${err.message}`);
                         reject(err.message);
                     } else {
                         resolve(result.recordset);
@@ -759,6 +757,7 @@ async function getServices(pool, req, res, owner){
         });
         return result;
     } catch (err) {
+        console.error(`Function: getServices, error: ${err}`);
         res.set('Content-Type', 'application/json');
         res.status(400).json({ error: err });
         return null;
@@ -775,7 +774,9 @@ async function getUsers(pool, user_id, res){
                     if(err){
                         reject(err.message)
                     }
-                    resolve(result.recordset[0])
+                    else{
+                        resolve(result.recordset[0])
+                    }
                 })
         })
         return result;
@@ -869,6 +870,11 @@ async function checkReservation(pool, req, res){
     req.query.name = null
     const check = await getServices(pool, req, res, null)
     if(check == null){return}
+    if(check.length < 1){
+        console.error(`ChekReservation: pls make a reservation on an existing service`)
+        res.status(400).json({error: "pls make a reservation on an existing service"})
+        return null
+    }
     if(check[0].owner == req.user.name){
         console.error(`Function: checkReservation, error: ${errorMessage.reservations.participateOwn}`)
         res.status(400).json({error: errorMessage.reservations.participateOwn})
@@ -1034,7 +1040,7 @@ async function checkReservationOwner(pool, req, res){
                 .query(query, (err, result) => {
                     if (err) {
                         reject(err.message);
-                    } else if(result.recordset[0].owner != req.user.name){
+                    } else if(result.recordset.length < 1 || result.recordset[0].owner != req.user.name){
                         reject(errorMessage.reservations.acceptError)
                     } else{
                         resolve(true);
@@ -1122,29 +1128,33 @@ async function payReservation(pool, req, res){
 }
 
 async function sendEmail(to, subject, text, html) {
-    let transporter = nodeMailer.createTransport({
-        service:'gmail',
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-    });
-  
-    let mailOptions = {
-      from: {
-        name: "StreetSync",
-        address: process.env.SMTP_USER
-      },
-      to: to,
-      subject: subject,
-      text: text,
-      html: html,
-    };
-  
-    transporter.sendMail(mailOptions);
+    try {
+        let transporter = nodeMailer.createTransport({
+            service:'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASS,
+            },
+        });
+      
+        let mailOptions = {
+          from: {
+            name: "StreetSync",
+            address: process.env.SMTP_USER
+          },
+          to: to,
+          subject: subject,
+          text: text,
+          html: html,
+        };
+      
+        transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error(error)
+    }
   }
 
 async function getServicesOwner(pool, req, res){
