@@ -1,8 +1,0 @@
-{
-    "appService.zipIgnorePattern": [
-        "node_modules{,/**}",
-        ".vscode{,/**}"
-    ],
-    "appService.defaultWebAppToDeploy": "/subscriptions/431e3b2b-2250-4a76-9d8e-2f6b465d6738/resourceGroups/nodestreetsyncapi-gp/providers/Microsoft.Web/sites/streetsync",
-    "appService.deploySubpath": "."
-}
