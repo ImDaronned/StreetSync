@@ -294,6 +294,10 @@ mssql.connect(config)
                 req.user.id = req.body.services_id
                 const reservation = await getServicesReservationsServices(pool, req, res)
                 if(reservation == null){return}
+                if(reservation.recordset.length < 1){
+                    console.error("you cannot acces this service")
+                    return res.status(400).json({error: "you cannot access this service"})
+                }
                 const user = await getUsers(pool, reservation.recordset[0].user_id,res)
                 sendEmail(user.email,"Notification","Your reservation got accepted")
                 console.log(`Accept: POST, accepted successfuly`)
@@ -309,6 +313,10 @@ mssql.connect(config)
                 req.user.id = req.body.services_id
                 const reservation = await getServicesReservationsServices(pool, req, res)
                 if(reservation == null){return}
+                if(reservation.recordset.length < 1){
+                    console.error("you cannot acces this service")
+                    return res.status(400).json({error: "You cannot access this service"})
+                }
                 const user = await getUsers(pool, reservation.recordset[0].user_id,res)
                 sendEmail(user.email,"Notification","Your reservation got rejected")
                 console.log(`Reject: POST, rejected successfuly`)
